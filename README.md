@@ -1,4 +1,4 @@
-# TiktokAds Advertising Data Unification
+# Tiktok Advertising Data Unification
 
 This dbt package is for Data Unification of Amazon Advertising ingested data by [Daton](https://sarasanalytics.com/daton/). [Daton](https://sarasanalytics.com/daton/) is the Unified Data Platform for Global Commerce with 100+ pre-built connectors and data sets designed for accelerating the eCommerce data and analytics journey by [Saras Analytics](https://sarasanalytics.com).
 
@@ -8,7 +8,7 @@ This dbt package is for Data Unification of Amazon Advertising ingested data by 
 
 #### Typical challenges with raw data are:
 - Array/Nested Array columns which makes queries for Data Analytics complex
-- Data duplication due to look back period while fetching report data from Amazon
+- Data duplication due to look back period while fetching report data from Tiktok
 - Separate tables at marketplaces/Store, brand, account level for same kind of report/data feeds
 
 Data Unification simplifies Data Analytics by doing:
@@ -22,7 +22,7 @@ Data Unification simplifies Data Analytics by doing:
 
 #### Prerequisite 
 Daton Integrations for  
-- Amazon Ads: Sponsored Brands, Sponsored Display, Sponsored Products 
+- Tiktok Ads 
 - Exchange Rates(Optional, if currency conversion is not required)
 
 *Note:* 
