@@ -1,6 +1,6 @@
-# Amazon Delivery Service Partner Data Unification
+# TiktokAds Advertising Data Unification
 
-This dbt package is for the Amazon Delivery Service Partner data unification Ingested by [Daton](https://sarasanalytics.com/daton/). [Daton](https://sarasanalytics.com/daton/) is the Unified Data Platform for Global Commerce with 100+ pre-built connectors and data sets designed for accelerating the eCommerce data and analytics journey by [Saras Analytics](https://sarasanalytics.com).
+This dbt package is for Data Unification of Amazon Advertising ingested data by [Daton](https://sarasanalytics.com/daton/). [Daton](https://sarasanalytics.com/daton/) is the Unified Data Platform for Global Commerce with 100+ pre-built connectors and data sets designed for accelerating the eCommerce data and analytics journey by [Saras Analytics](https://sarasanalytics.com).
 
 ### Supported Datawarehouses:
 - BigQuery
@@ -8,24 +8,37 @@ This dbt package is for the Amazon Delivery Service Partner data unification Ing
 
 #### Typical challenges with raw data are:
 - Array/Nested Array columns which makes queries for Data Analytics complex
-- Data duplication due to look back period while fetching report data from Amazon Marketing UI
+- Data duplication due to look back period while fetching report data from Amazon
 - Separate tables at marketplaces/Store, brand, account level for same kind of report/data feeds
 
-By doing Data Unification the above challenges can be overcomed and simplifies Data Analytics. 
-As part of Data Unification, the following functions are performed:
+Data Unification simplifies Data Analytics by doing:
 - Consolidation - Different marketplaces/Store/account & different brands would have similar raw Daton Ingested tables, which are consolidated into one table with column distinguishers brand & store
 - Deduplication - Based on primary keys, the data is De-duplicated and the latest records are only loaded into the consolidated stage tables
 - Incremental Load - Models are designed to include incremental load which when scheduled would update the tables regularly
 - Standardization -
-	- Currency Conversion (Optional) - Raw Tables data created at Marketplace/Store/Account level may have data in local currency of the corresponding marketplace/store/account. Values that are in local currency are standardized by converting to desired currency using Daton Exchange Rates data.
+	- Currency Conversion (Optional) - Raw Tables data created at Marketplace/Store/Account level may have data in local currency of the corresponding marketplace/store/account. Values that are in local currency are Standardized by converting to desired currency using Daton Exchange Rates data.
 	  Prerequisite - Exchange Rates connector in Daton needs to be present - Refer [this](https://github.com/saras-daton/currency_exchange_rates)
-	- Time Zone Conversion (Optional) - Raw Tables data created at Marketplace/Store/Account level may have data in local timezone of the corresponding marketplace/store/account. DateTime values that are in local timezone are standardized by converting to specified timezone using input offset hours.
+	- Time Zone Conversion (Optional) - Raw Tables data created at Marketplace/Store/Account level may have data in local timezone of the corresponding marketplace/store/account. DateTime values that are in local timezone are Standardized by converting to specified timezone using input offset hours.
 
 #### Prerequisite 
 Daton Integrations for  
-- Amazon DSP 
-- Exchange Rates (Optional, if currency conversion is not required)
+- Amazon Ads: Sponsored Brands, Sponsored Display, Sponsored Products 
+- Exchange Rates(Optional, if currency conversion is not required)
 
+*Note:* 
+*Please select 'Do Not Unnest' option while setting up Daton Integrataion*
+
+# Installation & Configuration
+
+## Installation Instructions
+
+If you haven't already, you will need to create a packages.yml file in your DBT project. Include this in your `packages.yml` file
+
+```yaml
+packages:
+  - package: saras-daton/TiktokAds
+    version: v1.0.0
+```
 
 # Configuration 
 
@@ -44,8 +57,10 @@ Models will be create unified tables under the schema (<target_schema>_stg_amazo
 
 ```yaml
 models:
-  amazon_dsp:
-    +schema: custom_schema_extension
+  tiktok_ads:
+    TiktokAds:
+      +schema: custom_schema_extension
+
 ```
 
 ## Optional Variables
@@ -63,6 +78,23 @@ vars:
     currency_conversion_flag: True
 ```
 
+### Timezone Conversion 
+
+To enable timezone conversion, which converts the timezone columns from UTC timezone to local timezone, please mark the timezone_conversion_flag as True in the dbt_project.yml file, by default, it is False.
+Additionally, you need to provide offset hours between UTC and the timezone you want the data to convert into for each raw table for which you want timezone converison to be taken into account.
+
+Example:
+```yaml
+vars:
+timezone_conversion_flag: False
+raw_table_timezone_offset_hours: {
+    "Tiktok.Ads.SPONSOREDBRANDS_TIKTOKADS_AD_GROUP_REPORT_HOURLY":-6,
+    "Tiktok.Ads.SPONSOREDBRANDS_TIKTOKADS_AD_REPORT_HOURLY":-6, 
+    "Tiktok.Ads.SPONSOREDBRANDS_TIKTOKADS_CAMPAIGN_REPORT_HOURLY":-6,
+    }
+```
+Here, -7 represents the offset hours between UTC and PDT considering we are sitting in PDT timezone and want the data in this timezone
+
 ### Table Exclusions
 
 If you need to exclude any of the models, declare the model names as variables and mark them as False. Refer the table below for model details. By default, all tables are created.
@@ -70,22 +102,30 @@ If you need to exclude any of the models, declare the model names as variables a
 Example:
 ```yaml
 vars:
-CampaignReport: False
+SponsoredBrands_AdGroupsReport: False
 ```
 
 ## Models
 
-This package contains models from the Amazon Adverstising API which includes reports on {{audience, campaign, inventory, product, geography, technology}}. The primary outputs of this package are described below.
+This package contains models from the Amazon Advertising API which includes reports on {{sales, margin, inventory, product}}. The primary outputs of this package are described below.
 
 | **Category**                 | **Model**  | **Description** |
 | ------------------------- | ---------------| ----------------------- |
-|Audience | [AudienceReport](models/AmazonDSP/AmazonDSPAudienceReport.sql)  | Audience reports contain data based on your audience |
-|Inventory | [InventoryReport](models/AmazonDSP/AmazonDSPInventoryReport.sql)  | Inventory reports contain data based on your inventory, such as deal and supply source information |
-|Campaign | [CampaignReport](models/AmazonDSP/AmazonDSPCampaignReport.sql)  | Campaign reports include performance data for campaigns that have performance activity on your requested dates |
-|Geography | [GeographyReport](models/AmazonDSP/AmazonDSPGeographyReport.sql)| Geography reports contain your customers’ geographical data |
-|Technology | [TechnologyReport](models/AmazonDSP/AmazonDSPTechnologyReport.sql)| Technology reports contain data based on your customers’ technology |
-|Products | [ProductsReport](models/AmazonDSP/AmazonDSPProductsReport.sql)| Products reports contain data based on the products featured in your campaigns|
-
+|Sponsored Brands | [TiktokAds_Reservation_campaign_report_daily](models/TiktokAds/TiktokAds_Reservation_campaign_report_daily.sql)  | A list of campaigns perfromance reports at day level |
+|Sponsored Brands | [TiktokAds_ad_age_gender](models/TiktokAds/TiktokAds_ad_age_gender.sql)  | A list of Ads performance at age and gender level |
+|Sponsored Brands | [TiktokAds_ad_country](models/TiktokAds/TiktokAds_ad_country.sql)  | A list of ads performance at country level |
+|Sponsored Brands | [TiktokAds_ad_group_report_daily](models/TiktokAds/TiktokAds_ad_group_report_daily.sql)| A list of Ad groups performance at country level |
+|Sponsored Brands | [TiktokAds_ad_group_report_hourly](models/TiktokAds/TiktokAds_ad_group_report_hourly.sql)| A list of Ad groups performance at hourly level |
+|Sponsored Brands | [TiktokAds_ad_language](models/TiktokAds/TiktokAds_ad_language.sql)| A list of Ads performance at Language level |
+|Sponsored Brands | [TiktokAds_ad_platform](models/TiktokAds/TiktokAds_ad_platform.sql)| A list of Ads performance at Platform level |
+|Sponsored Brands | [TiktokAds_ad_report_daily](models/TiktokAds/TiktokAds_ad_report_daily.sql)| A list of Ads perfromance reports at day level |
+|Sponsored Brands | [TiktokAds_ad_report_hourly](models/TiktokAds/TiktokAds_ad_report_hourly.sql)| A list of Ads perfromance reports at hourly level |
+|Sponsored Brands | [TiktokAds_campaign_age_gender](models/TiktokAds/TiktokAds_campaign_age_gender.sql)| A list of campaign performance at age and gender level |
+|Sponsored Brands | [TiktokAds_campaign_country](models/TiktokAds/TiktokAds_campaign_country.sql)| A list of campaign performance at country level |
+|Sponsored Brands | [TiktokAds_campaign_language](models/TiktokAds/TiktokAds_campaign_language.sql)| A list of campaign performance at Language level |
+|Sponsored Brands | [TiktokAds_campaign_platform](models/TiktokAds/TiktokAds_campaign_platform.sql)| A list of campaign performance at Platform level |
+|Sponsored Brands | [TiktokAds_campaign_report_daily](models/TiktokAds/TiktokAds_campaign_report_daily.sql)| A list of campaign perfromance reports at day level |
+|Sponsored Brands | [TiktokAds_campaign_report_hourly](models/TiktokAds/TiktokAds_campaign_report_hourly.sql)| A list of campaign perfromance reports at hourly level |
 
 
 
@@ -95,55 +135,126 @@ This package contains models from the Amazon Adverstising API which includes rep
 ```yaml
 version: 2
 models:
-  - name: AmazonDSPCampaignReport
+  - name: TiktokAds_Reservation_campaign_report_daily
     config:
       materialized: incremental
       incremental_strategy: merge
-      unique_key: ['advertiserId','ReportDate','OrderId','LineItemId','CreativeID','CreativeAdId']
-      partition_by: { 'field': 'reportDate', 'data_type': 'date' }
-      cluster_by: ['advertiserId','OrderId','LineItemId','CreativeID'] 
+      unique_key: ['Date', 'CampaignID', 'Campaignname', 'AccountName']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Campaignname', 'AccountName'] 
 
-  - name: AmazonDSPAudienceReport
+  - name: TiktokAds_ad_age_gender
     config:
       materialized: incremental
       incremental_strategy: merge
-      unique_key: ['advertiserId','ReportDate','OrderId','LineItemId']
-      partition_by: { 'field': 'reportDate', 'data_type': 'date' }
-      cluster_by: ['advertiserId','OrderId','LineItemId'] 
+      unique_key: ['Date', 'AdID', 'CampaignID', 'Campaignname']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'CampaignID', 'Campaignname'] 
 
-  - name: AmazonDSPGeographyReport
+  - name: TiktokAds_ad_country
     config:
       materialized: incremental
       incremental_strategy: merge
-      unique_key: ['advertiserId','ReportDate','OrderId','LineItemId']
-      partition_by: { 'field': 'reportDate', 'data_type': 'date' }
-      cluster_by: ['advertiserId','OrderId','LineItemId'] 
+      unique_key: ['Date', 'AdID', 'Region', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['AdID', 'Date', 'CampaignID'] 
 
-  - name: AmazonDSPInventoryReport
+  - name: TiktokAds_ad_group_report_daily
     config:
       materialized: incremental
       incremental_strategy: merge
-      unique_key: ['advertiserId','ReportDate','OrderId','LineItemId']
-      partition_by: { 'field': 'reportDate', 'data_type': 'date' }
-      cluster_by: ['advertiserId','OrderId','LineItemId'] 
+      unique_key: ['Date', 'AdgroupID', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdgroupID', 'CampaignID'] 
 
-  - name: AmazonDSPProductsReport
+  - name: TiktokAds_ad_group_report_hourly
     config:
       materialized: incremental
       incremental_strategy: merge
-      unique_key: ['advertiserId','ReportDate','OrderId','LineItemId']
-      partition_by: { 'field': 'reportDate', 'data_type': 'date' }
-      cluster_by: ['advertiserId','OrderId','LineItemId'] 
-      
-  - name: AmazonDSPTechnologyReport
+      unique_key: ['Time', 'AdgroupID', 'CampaignID']
+      partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
+      cluster_by: [ 'Time', 'AdgroupID','CampaignID'] 
+
+  - name: TiktokAds_ad_language
     config:
       materialized: incremental
       incremental_strategy: merge
-      unique_key: ['ReportDate','OrderId','LineItemId']
-      partition_by: { 'field': 'reportDate', 'data_type': 'date' }
-      cluster_by: ['OrderId','LineItemId'] 
+      unique_key: ['Date', 'AdID', 'Language', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'Language', 'CampaignID'] 
 
+  - name: TiktokAds_ad_platform
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'OperatingSystem']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'OperatingSystem'] 
 
+  - name: TiktokAds_ad_report_daily
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'CampaignID'] 
+
+  - name: TiktokAds_ad_report_hourly
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Time', 'AdID', 'CampaignID']
+      partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
+      cluster_by: ['Time', 'AdID', 'CampaignID'] 
+
+  - name: TiktokAds_campaign_age_gender
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Age', 'Gender']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Age', 'Gender'] 
+
+  - name: TiktokAds_campaign_country
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Campaignname', 'AccountName']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID'] 
+
+  - name: TiktokAds_campaign_language
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Language']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Language'] 
+
+  - name: TiktokAds_campaign_platform
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'OperatingSystem']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'OperatingSystem'] 
+
+  - name: TiktokAds_campaign_report_daily
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Campaignname']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Campaignname'] 
+
+  - name: TiktokAds_campaign_report_hourly
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Time', 'CampaignID', 'Campaignname']
+      partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
+      cluster_by: ['Time', 'CampaignID', 'Campaignname'] 
+   
 ```
 
 
