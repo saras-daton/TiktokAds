@@ -1,0 +1,122 @@
+#TiktokAds
+version: 2
+models:
+  - name: TiktokAds_Reservation_campaign_report_daily
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Campaignname', 'AccountName']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Campaignname', 'AccountName'] 
+
+  - name: TiktokAds_ad_age_gender
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'CampaignID', 'Campaignname']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'CampaignID', 'Campaignname'] 
+
+  - name: TiktokAds_ad_country
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'Region', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['AdID', 'Date', 'CampaignID'] 
+
+  - name: TiktokAds_ad_group_report_daily
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdgroupID', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdgroupID', 'CampaignID'] 
+
+  - name: TiktokAds_ad_group_report_hourly
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Time', 'AdgroupID', 'CampaignID']
+      partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
+      cluster_by: [ 'Time', 'AdgroupID','CampaignID'] 
+
+  - name: TiktokAds_ad_language
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'Language', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'Language', 'CampaignID'] 
+
+  - name: TiktokAds_ad_platform
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'OperatingSystem']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'OperatingSystem'] 
+
+  - name: TiktokAds_ad_report_daily
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'AdID', 'CampaignID']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'AdID', 'CampaignID'] 
+
+  - name: TiktokAds_ad_report_hourly
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Time', 'AdID', 'CampaignID']
+      partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
+      cluster_by: ['Time', 'AdID', 'CampaignID'] 
+
+  - name: TiktokAds_campaign_age_gender
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Age', 'Gender']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Age', 'Gender'] 
+
+  - name: TiktokAds_campaign_country
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Campaignname', 'AccountName']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID'] 
+
+  - name: TiktokAds_campaign_language
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Language']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Language'] 
+
+  - name: TiktokAds_campaign_platform
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'OperatingSystem']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'OperatingSystem'] 
+
+  - name: TiktokAds_campaign_report_daily
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Date', 'CampaignID', 'Campaignname']
+      partition_by: { 'field': 'Date', 'data_type': 'date' }
+      cluster_by: ['Date', 'CampaignID', 'Campaignname'] 
+
+  - name: TiktokAds_campaign_report_hourly
+    config:
+      materialized: incremental
+      incremental_strategy: merge
+      unique_key: ['Time', 'CampaignID', 'Campaignname']
+      partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
+      cluster_by: ['Time', 'CampaignID', 'Campaignname'] 
