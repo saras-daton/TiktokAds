@@ -1,7 +1,7 @@
 #TiktokAds
 version: 2
 models:
-  - name: TiktokAds_Reservation_campaign_report_daily
+  - name: TiktokAdsReservationCampaignReportDaily
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -9,7 +9,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'CampaignID', 'Campaignname', 'AccountName'] 
 
-  - name: TiktokAds_ad_age_gender
+  - name: TiktokAdsAdAgeGender
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -17,7 +17,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'AdID', 'CampaignID', 'Campaignname'] 
 
-  - name: TiktokAds_ad_country
+  - name: TiktokAdsAdCountry
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -25,7 +25,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['AdID', 'Date', 'CampaignID'] 
 
-  - name: TiktokAds_ad_group_report_daily
+  - name: TiktokAdsAdGroupReportDaily
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -33,7 +33,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'AdgroupID', 'CampaignID'] 
 
-  - name: TiktokAds_ad_group_report_hourly
+  - name: TiktokAdsAdGroupReportHourly
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -41,7 +41,7 @@ models:
       partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
       cluster_by: [ 'Time', 'AdgroupID','CampaignID'] 
 
-  - name: TiktokAds_ad_language
+  - name: TiktokAdsAdLanguage
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -49,7 +49,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'AdID', 'Language', 'CampaignID'] 
 
-  - name: TiktokAds_ad_platform
+  - name: TiktokAdsAdPlatform
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -57,7 +57,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'AdID', 'OperatingSystem'] 
 
-  - name: TiktokAds_ad_report_daily
+  - name: TiktokAdsAdReportDaily
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -65,7 +65,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'AdID', 'CampaignID'] 
 
-  - name: TiktokAds_ad_report_hourly
+  - name: TiktokAdsAdReportHourly
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -73,7 +73,7 @@ models:
       partition_by: { 'field': 'Time', 'data_type': 'timestamp', 'granularity': 'day' }
       cluster_by: ['Time', 'AdID', 'CampaignID'] 
 
-  - name: TiktokAds_campaign_age_gender
+  - name: TiktokAdsCampaignAgeGender
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -81,7 +81,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'CampaignID', 'Age', 'Gender'] 
 
-  - name: TiktokAds_campaign_country
+  - name: TiktokAdsCampaignCountry
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -89,7 +89,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'CampaignID'] 
 
-  - name: TiktokAds_campaign_language
+  - name: TiktokAdsCampaignLanguage
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -97,7 +97,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'CampaignID', 'Language'] 
 
-  - name: TiktokAds_campaign_platform
+  - name: TiktokAdsCampaignPlatform
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -105,7 +105,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'CampaignID', 'OperatingSystem'] 
 
-  - name: TiktokAds_campaign_report_daily
+  - name: TiktokAdsCampaignReportDaily
     config:
       materialized: incremental
       incremental_strategy: merge
@@ -113,7 +113,7 @@ models:
       partition_by: { 'field': 'Date', 'data_type': 'date' }
       cluster_by: ['Date', 'CampaignID', 'Campaignname'] 
 
-  - name: TiktokAds_campaign_report_hourly
+  - name: TiktokAdsCampaignReportHourly
     config:
       materialized: incremental
       incremental_strategy: merge

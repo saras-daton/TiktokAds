@@ -1,3 +1,8 @@
+{% if var('TiktokAdsCampaignPlatform') %}
+{{ config( enabled = True ) }}
+{% else %}
+{{ config( enabled = False ) }}
+{% endif %}
 
 {% if is_incremental() %}
 {%- set max_loaded_query -%}
@@ -13,9 +18,9 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
 {%- endif -%}
 {% endif %}
 
-with country as(
+
 {% set table_name_query %}
-{{set_table_name('%tiktokads%campaign_country')}}    
+{{set_table_name('%tiktokads%campaign_platform')}}    
 {% endset %}
 
 {% set results = run_query(table_name_query) %}
@@ -47,18 +52,14 @@ with country as(
         {% set hr = 0 %}
     {% endif %}
 
-    SELECT * 
+    SELECT * {{exclude()}} (row_num)
     FROM (
         select 
         '{{brand}}' as brand,
         '{{store}}' as store,
         CampaignID,
         Date,
-        {% if target.type=='snowflake' %} 
-        COUNTRY as Region,
-        {% else %}
-        Country.Region as Region,
-        {% endif %}
+        OperatingSystem,
         Cost,
         Impression,
         Click,
@@ -77,39 +78,24 @@ with country as(
         RealtimeResults,
         RealtimeCostPerResults,
         RealtimeResultsRate,
-        CountryRegion,
-        ClicksDestination,
-        CPCDestination,
-        CTRDestination,
-        Clicks,
         AccountName,
         Campaignname,
         Objective,
-        {{daton_user_id()}} as _daton_user_id,
-        {{daton_batch_runtime()}} as _daton_batch_runtime,
-        {{daton_batch_id()}} as _daton_batch_id,
+        a.{{daton_user_id()}} as _daton_user_id,
+        a.{{daton_batch_runtime()}} as _daton_batch_runtime,
+        a.{{daton_batch_id()}} as _daton_batch_id,
         current_timestamp() as _last_updated,
-        '{{env_var("DBT_CLOUD_RUN_ID", "manual")}}' as _run_id
+        '{{env_var("DBT_CLOUD_RUN_ID", "manual")}}' as _run_id,
+        DENSE_RANK() OVER (PARTITION BY Date, CampaignID, OperatingSystem order by {{daton_batch_runtime()}} desc) row_num
         FROM  {{i}} a
-                {% if target.type=='snowflake' %} 
-                {% else %}
-                left join unnest(Country) Country
-                {% endif %}
                 {% if is_incremental() %}
                 {# /* -- this filter will only be applied on an incremental run */ #}
-                WHERE {{daton_batch_runtime()}}  >= {{max_loaded}}
+                WHERE a.{{daton_batch_runtime()}}  >= {{max_loaded}}
                 {% endif %}
         )
+        where row_num = 1
     {% if not loop.last %} union all {% endif %}
 {% endfor %}
-),
 
-dedup as (
-select *,
-DENSE_RANK() OVER (PARTITION BY Date, CampaignID, Region order by _daton_batch_runtime desc) row_num
-from country 
-)
 
-select * {{exclude()}}(row_num)
-from dedup 
-where row_num = 1
+

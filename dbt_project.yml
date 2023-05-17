@@ -2,15 +2,16 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'AmazonDSP'
+name: 'TiktokAds'
 version: '1.0.0'
 config-version: 2
-require-dbt-version: [">=1.0.0", "<2.0.0"]
+# require-dbt-version: [">=1.0.0", "<2.0.0"] /*need to check on this
+profile: "edm_data_transformation" #need to be deleted
 
 vars:
   raw_database: "Daton" #equivalent to project_id in BigQuery
     # Example Database name
-  raw_schema: "AmazonDSP" #equivalent to dataset in BigQuery
+  raw_schema: "TiktokAds" #equivalent to dataset in BigQuery
     # Example Schema name
 
   get_brandname_from_tablename_flag: True
@@ -29,13 +30,21 @@ vars:
   currency_conversion_flag: False
   timezone_conversion_flag: False
   
-  AmazonDSPAudienceReport: True
-  AmazonDSPCampaignReport: True
-  AmazonDSPInventoryReport: True
-  AmazonDSPGeographyReport: True
-  AmazonDSPTechnologyReport: True
-  AmazonDSPProductsReport: True
-  
+  TiktokAdsAdAgeGender: True
+  TiktokAdsAdCountry: True
+  TiktokAdsAdGroupReportDaily: True
+  TiktokAdsAdGroupReportHourly: True
+  TiktokAdsAdLanguage: True
+  TiktokAdsAdPlatform: True
+  TiktokAdsAdReportDaily: True
+  TiktokAdsAdReportHourly: True
+  TiktokAdsCampaignAgeGender: True
+  TiktokAdsCampaignCountry: True
+  TiktokAdsCampaignLanguage: True
+  TiktokAdsCampaignPlatform: True
+  TiktokAdsCampaignReportDaily: True
+  TiktokAdsCampaignReportHourly: True
+  TiktokAdsReservationCampaignReportDaily: True
 
   
 # These configurations specify where dbt should look for different types of files.
@@ -55,6 +64,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 
 models:
-  AmazonDSP:
-    AmazonDSP:
-      +schema: stg_amazon_dsp
+  TiktokAds:
+    +schema: stg_tiktok_ads

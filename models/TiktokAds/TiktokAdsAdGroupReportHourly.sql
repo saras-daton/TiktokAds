@@ -1,3 +1,8 @@
+{% if var('TiktokAdsAdGroupReportHourly') %}
+{{ config( enabled = True ) }}
+{% else %}
+{{ config( enabled = False ) }}
+{% endif %}
 
 {% if is_incremental() %}
 {%- set max_loaded_query -%}
@@ -15,7 +20,7 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
 
 
 {% set table_name_query %}
-{{set_table_name('%tiktokads%ad_report_daily')}}    
+{{set_table_name('%tiktokads%ad_group_report_hourly')}}    
 {% endset %}
 
 {% set results = run_query(table_name_query) %}
@@ -52,8 +57,8 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
         select 
         '{{brand}}' as brand,
         '{{store}}' as store,
-        AdID,
-        Date,
+        AdgroupID,
+        Time,
         Cost,
         CPC,
         CPM,
@@ -104,25 +109,20 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
         TotalCompletePayment,
         ValueperCompletePayment,
         TotalCompletePaymentValue,
-        CPCDestination,
-        ClicksDestination,
-        CTRDestination,
-        Clicks,
         AccountName,
         Campaignname,
         CampaignID,
         AdGroupName,
-        AdgroupID,
-        AdName,
         Objective,
         PromotionType,
         PlacementsTypes,
+        Clicks,
         a.{{daton_user_id()}} as _daton_user_id,
         a.{{daton_batch_runtime()}} as _daton_batch_runtime,
         a.{{daton_batch_id()}} as _daton_batch_id,
         current_timestamp() as _last_updated,
         '{{env_var("DBT_CLOUD_RUN_ID", "manual")}}' as _run_id,
-        Row_number() OVER (PARTITION BY Date, AdID order by {{daton_batch_runtime()}} desc) row_num
+        DENSE_RANK() OVER (PARTITION BY Time, CampaignID order by {{daton_batch_runtime()}} desc) row_num
         FROM  {{i}} a
                 {% if is_incremental() %}
                 {# /* -- this filter will only be applied on an incremental run */ #}

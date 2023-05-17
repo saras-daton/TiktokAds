@@ -1,3 +1,8 @@
+{% if var('TiktokAdsAdPlatform') %}
+{{ config( enabled = True ) }}
+{% else %}
+{{ config( enabled = False ) }}
+{% endif %}
 
 {% if is_incremental() %}
 {%- set max_loaded_query -%}
@@ -15,7 +20,7 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
 
 
 {% set table_name_query %}
-{{set_table_name('%tiktokads%campaign_report_hourly')}}    
+{{set_table_name('%tiktokads%ad_platform')}}    
 {% endset %}
 
 {% set results = run_query(table_name_query) %}
@@ -52,16 +57,15 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
         select 
         '{{brand}}' as brand,
         '{{store}}' as store,
-        CampaignID,
-        Time,
+        AdID,
+        Date,
+        OperatingSystem,
         Cost,
-        CPC,
-        CPM,
         Impression,
         Click,
+        CPM,
+        CPC,
         CTR,
-        Reach,
-        Costper1000PeopleReached,
         Conversions,
         CPA,
         CVR,
@@ -69,51 +73,26 @@ SELECT coalesce(MAX(_daton_batch_runtime) - 2592000000,0) FROM {{ this }}
         RealtimeCPA,
         RealtimeCVR,
         Results,
-        CostPerResults,
         ResultsRate,
+        CostPerResults,
         RealtimeResults,
         RealtimeCostPerResults,
         RealtimeResultsRate,
-        SecondaryGoalResult,
-        CostperSecondaryGoalResult,
-        SecondaryGoalResultRatepercent,
-        PaidLikes,
-        PaidComments,
-        PaidShares,
-        PaidProfileVisits,
-        PaidFollowers,
-        Videoviews,
-        {% if target.type=='snowflake' %} 
-        DATON_PRE_2SECONDVIDEOVIEWS as _daton_pre_2SecondVideoViews,
-        DATON_PRE_6SECONDVIDEOVIEWS as _daton_pre_6SecondVideoViews,
-        {% else %}
-        _daton_pre_2SecondVideoViews,
-        _daton_pre_6SecondVideoViews,
-        {% endif %}
-        VideoViewsat25percent,
-        VideoViewsat50percent,
-        VideoViewsat75percent,
-        VideoViewsat100percent,
-        AverageWatchTimeperVideoView,
-        AverageWatchTimeperPerson,
-        UniqueGenerateLead,
-        TotalPurchase,
-        TotalPurchaseValue,
-        TotalGenerateLead,
-        TotalGenerateLeadValue,
-        TotalCompletePayment,
-        ValueperCompletePayment,
-        TotalCompletePaymentValue,
         AccountName,
         Campaignname,
+        CampaignID,
+        AdGroupName,
+        AdgroupID,
+        AdName,
         Objective,
-        Clicks,
+        PromotionType,
+        PlacementsTypes,
         a.{{daton_user_id()}} as _daton_user_id,
         a.{{daton_batch_runtime()}} as _daton_batch_runtime,
         a.{{daton_batch_id()}} as _daton_batch_id,
         current_timestamp() as _last_updated,
         '{{env_var("DBT_CLOUD_RUN_ID", "manual")}}' as _run_id,
-        DENSE_RANK() OVER (PARTITION BY CampaignID, Time, Campaignname order by {{daton_batch_runtime()}} desc) row_num
+        DENSE_RANK() OVER (PARTITION BY Date, AdID, OperatingSystem order by {{daton_batch_runtime()}} desc) row_num
         FROM  {{i}} a
                 {% if is_incremental() %}
                 {# /* -- this filter will only be applied on an incremental run */ #}
